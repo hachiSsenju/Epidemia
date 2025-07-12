@@ -30,3 +30,4 @@ RUN chown -R www-data:www-data /var/www/html/var /var/www/html/vendor
 ENV APP_ENV=prod
 
 EXPOSE 80
+RUN php bin/console doctrine:migrations:migrate --no-interaction
