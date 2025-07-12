@@ -1,0 +1,48 @@
+name: Deploy Symfony Project
+
+on:
+  push:
+    branches:
+      - main  # Change to your deployment branch if different
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up PHP 8.1
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.1
+          extensions: mbstring, intl, pdo_mysql, zip
+          coverage: none
+
+      - name: Install Composer dependencies
+        run: composer install --no-progress --no-suggest --prefer-dist --optimize-autoloader --no-dev
+
+      - name: Run Symfony console cache clear
+        run: php bin/console cache:clear --env=prod
+
+      # Optional: Run tests
+      # - name: Run tests
+      #   run: php bin/phpunit
+
+      - name: Deploy to server via SSH
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: 22
+          script: |
+            cd /var/www/your-symfony-project
+            git pull origin main
+            composer install --no-dev --optimize-autoloader
+            php bin/console cache:clear --env=prod
+            php bin/console doctrine:migrations:migrate --no-interaction
+            # Restart PHP-FPM or webserver if needed, e.g.
+            sudo systemctl reload php8.1-fpm
+            sudo systemctl reload nginx
