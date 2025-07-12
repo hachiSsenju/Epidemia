@@ -1,0 +1,43 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello PaysController!{% endblock %}
+
+{% block body %}
+<style>
+    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
+    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
+    /* Add this to ensure proper select sizing */
+    .form-select-lg {
+        padding: 0.5rem 1rem;
+        font-size: 1.25rem;
+        border-radius: 0.3rem;
+    }
+</style>
+<form action='{{ path('app_zone_add') }}' method='post' class='px-4'>
+    {# <div class="mb-3">
+        <label class='form-label text-success'>Nom de la zone: </label>
+        <input type='text' class="form-control" name='name'>
+        <label class='form-label text-success'>Nombre d'habitants: </label>
+        <input type='text' class="form-control" name='nbhabitans'>
+        <label class='form-label text-success'>Nombre de cas positifs: </label>
+        <input type='text' class="form-control" name='nbpositifs'>
+    </div>
+
+    <div class="mb-3">
+        <select class="form-select form-select-lg" name="pays_id" required>
+            <option value="" selected disabled>Choisissez un pays</option>
+            {% for pays in payslist %}
+                <option value="{{ pays.id }}">{{ pays.nomPays }}</option>
+            {% else %}
+                <option disabled>Aucun pays disponible</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <input type='submit' class='btn btn-success' value='Créer'>
+        <input type='reset' class='btn btn-danger ms-2' value='Annuler'>
+    </div> #}
+    {{form(form)}}
+</form>
+{% endblock %}

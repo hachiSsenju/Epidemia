@@ -1,0 +1,148 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste des Zones{% endblock %}
+
+{% block body %}
+<style>
+  body {
+    overflow-y: scroll;
+  }
+
+  .d-none {
+    display: none !important;
+  }
+
+  .d-flex {
+    display: flex !important;
+  }
+</style>
+
+<body>
+<table class='table table-bordered'>
+  <thead>
+    <tr>
+      <th scope="col">Nom Zone</th>
+      <th scope="col">Nom Point</th>
+      <th scope="col">Nb Habitants</th>
+      <th scope="col">Nb Symptomatiques</th>
+      <th scope="col">Nb Positifs</th>
+      <th scope="col">Actions
+      <a class='btn btn-success' href='/location/new'>Ajouter une localisation</a>
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for point in points %}
+    <form action='{{ path("app_point_update", {id: point.id}) }}' method='post'>
+      <tr>
+        <td>
+          <select name='zone_id' class='form-select form-select-lg cbb-country' disabled>
+            {% for zone in zones %}
+              <option value="{{ zone.id }}" {{ zone.id == point.zone.id ? 'selected' : '' }}>
+                {{ zone.nomZone }}
+              </option>
+            {% endfor %}
+          </select>
+        </td>
+        <td>
+          <input type='text' class='form-control frm-nom' readonly value="{{ point.nomPoint }}" name='name'/>
+        </td>
+        <td>
+          <input type='text' class='form-control frm-nb' readonly value="{{ point.nbHabitants }}" name='nbHabitants'/>
+        </td>
+        <td>
+          <input type='text' class='form-control frm-nb' readonly value="{{ point.nbsymptomatiques }}" name='nb_symptomatiques'/>
+        </td>
+        <td>
+          <input type='text' class='form-control frm-nb' readonly value="{{ point.nbPositifs }}" name='nbPositifs'/>
+        </td>
+        <td>
+          <div class="btn-group-vertical w-100">
+
+            <!-- Normal buttons -->
+            <div class="normal-btns d-flex justify-content-between">
+              <button type="button" class="btn btn-info btn-modif">Modifier</button>
+              {% if is_granted('ROLE_ADMIN') %}
+              <button type="button" class="btn btn-danger btn-supp">Supprimer</button>
+              {% endif %}
+            </div>
+
+            <!-- Modify buttons -->
+            <div class="modif-btns d-none justify-content-between">
+              <button type="reset" class="btn btn-warning btn-ann-modif">Annuler</button>
+              <button type="submit" class="btn btn-success">Enregistrer</button>
+            </div>
+
+            <!-- Delete buttons -->
+            <div class="supp-btns d-none justify-content-between">
+              <a class="btn btn-danger text-white" href='{{ path("app_point_delete", {id: point.id}) }}'>Confirmer</a>
+              <button type="button" class="btn btn-warning btn-ann-supp">Annuler</button>
+            </div>
+
+          </div>
+        </td>
+      </tr>
+    </form>
+    {% endfor %}
+  </tbody>
+</table>
+</body>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Helper to toggle button groups
+  function toggleButtonGroup(row, showGroup) {
+    const groups = ['normal-btns', 'modif-btns', 'supp-btns'];
+    groups.forEach(group => {
+      const el = row.querySelector('.' + group);
+      if (!el) return;
+      if (group === showGroup) {
+        el.classList.remove('d-none');
+        el.classList.add('d-flex');
+      } else {
+        el.classList.add('d-none');
+        el.classList.remove('d-flex');
+      }
+    });
+  }
+
+  // Modifier Button (Edit)
+  document.querySelectorAll('.btn-modif').forEach(button => {
+    button.addEventListener('click', function() {
+      const row = this.closest('tr');
+      toggleButtonGroup(row, 'modif-btns');
+      // Enable all editable fields
+      row.querySelectorAll('.frm-nb, .frm-nom').forEach(input => {
+        input.readOnly = false;
+      });
+      row.querySelectorAll('.cbb-country').forEach(select => {
+        select.disabled = false;
+      });
+    });
+  });
+
+  // Supprimer Button (Delete)
+  document.querySelectorAll('.btn-supp').forEach(button => {
+    button.addEventListener('click', function() {
+      const row = this.closest('tr');
+      toggleButtonGroup(row, 'supp-btns');
+    });
+  });
+
+  // Annuler Modif Button (Cancel Edit)
+  document.querySelectorAll('.btn-ann-modif').forEach(button => {
+    button.addEventListener('click', function(e) {
+      e.preventDefault();
+      window.location.reload(); // refresh page to reset form
+    });
+  });
+
+  // Annuler Supp Button (Cancel Delete)
+  document.querySelectorAll('.btn-ann-supp').forEach(button => {
+    button.addEventListener('click', function() {
+      const row = this.closest('tr');
+      toggleButtonGroup(row, 'normal-btns');
+    });
+  });
+});
+</script>
+{% endblock %}

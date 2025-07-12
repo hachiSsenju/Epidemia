@@ -1,0 +1,60 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Carte Google Maps</title>
+    <style>
+        #map {
+            height: 500px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+<div id="map"></div>
+
+<script>
+   
+    const locations = {{ locations|json_encode|raw }};
+
+    
+    function initMap() {
+        const mapCenter = { lat: 14.6928, lng: -17.4467 };
+
+        const map = new google.maps.Map(document.getElementById("map"), {
+            zoom: 12,
+            center: mapCenter
+        });
+
+        
+        locations.forEach(loc => {
+            const marker = new google.maps.Marker({
+                position: { lat: loc.lat, lng: loc.lng },
+                map: map,
+                title: loc.label
+            });
+
+           
+            const info = new google.maps.InfoWindow({
+                content: `<p >${loc.label}</p>`
+            });
+
+            marker.addListener("click", () => {
+                info.open(map, marker);
+            });
+        });
+    }
+</script>
+
+
+<script
+    src="https://maps.googleapis.com/maps/api/js?key={{ apiKey }}&callback=initMap"
+    async defer>
+</script>
+
+</body>
+</html>
+
+{% endblock %}

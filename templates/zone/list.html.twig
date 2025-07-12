@@ -1,0 +1,118 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste des Zones{% endblock %}
+
+{% block body %}
+<style>
+  #modif-btns,#supp-btns{
+    display: none;
+  }
+  body{
+    overflow-y: scroll;
+  }
+</style>
+
+<body>
+<table class='table table-bordered'>
+ <thead>
+    <tr>
+      <th scope="col">nom Pays</th>
+      <th scope="col">nom Zone</th>
+      <th scope="col">status</th>
+      {# <th scope="col">nb positifs</th> #}
+      <th scope="col">Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for zone in zones %}
+<form action='{{ path('app_zone_update', {'id': zone.id}) }}' method='post'>
+<tr>
+<td>
+<select name='pays_id' class='form-select form-select-lg cbb-country' value={{zone.pays.nomPays}} disabled>
+
+  {% for pays in payslist %}
+ <option value="{{ pays.id }}" {{ pays.id == zone.pays.id ? 'selected' : '' }}>
+    {{ pays.nomPays }}
+  </option>
+    {% endfor %}
+</select>
+</td>
+<td><input type='text' class='form-control frm-nom' readOnly value={{zone.nomZone}} name='name'/></td>
+<td>{{zone.status}}</td>
+{# <td><input type='text' class='form-control frm-nb' readOnly value={{zone.points|length}} name='nbPositifs'></td> #}
+
+<td>
+
+<div id='modif-btns'>
+<button type="reset" class="btn btn-warning btn-ann-modif ">Annuler</button>
+<button type="submit" class="btn btn-success">Enregistrer</button>
+</div>
+
+<div id='supp-btns'>
+<a class="btn btn-danger text-white" href='{{ path('app_zone_delete', {'id': zone.id}) }}'>Confirmer</a>
+<button type="button" class="btn btn-warning btn-ann-supp">Annuler</button>
+</div>
+  {% if is_granted('ROLE_ADMIN') %}
+<div id='normal-btns'>
+<button type="button" class="btn btn-info">Modifier</button>
+<button type="button" class="btn btn-danger btn-supp">Supprimer</button>
+<div>
+{% endif %}
+</td>
+</tr>
+</form>
+    {% endfor %}
+  </tbody>
+</body>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Modifier Button (Edit)
+  document.querySelectorAll('.btn-info').forEach(button => {
+    button.addEventListener('click', function() {
+      const row = this.closest('tr');
+      row.querySelector('#normal-btns').style.display = 'none';
+      row.querySelector('#modif-btns').style.display = 'block';
+      
+      // Enable form fields
+      row.querySelector('.frm-nom').readOnly = false;
+      row.querySelector('.frm-nb').readOnly = false;
+      row.querySelector('.cbb-country').disabled = false;
+    });
+  });
+
+  // Supprimer Button (Delete)
+  document.querySelectorAll('.btn-supp').forEach(button => {
+    button.addEventListener('click', function() {
+      const row = this.closest('tr');
+      row.querySelector('#normal-btns').style.display = 'none';
+      row.querySelector('#supp-btns').style.display = 'block';
+    });
+  });
+
+  // Annuler Modif Button (Cancel Edit)
+  document.querySelectorAll('.btn-ann-modif').forEach(button => {
+    button.addEventListener('click', function(e) {
+      e.preventDefault();
+      const row = this.closest('tr');
+      row.querySelector('#normal-btns').style.display = 'block';
+      row.querySelector('#modif-btns').style.display = 'none';
+                window.location.reload();
+      
+      // Disable form fields
+      row.querySelector('.frm-nom').readOnly = true;
+      row.querySelector('.frm-nb').readOnly = true;
+      row.querySelector('.cbb-country').disabled = true;
+    });
+  });
+
+  // Annuler Supp Button (Cancel Delete)
+  document.querySelectorAll('.btn-ann-supp').forEach(button => {
+    button.addEventListener('click', function() {
+      const row = this.closest('tr');
+      row.querySelector('#normal-btns').style.display = 'block';
+      row.querySelector('#supp-btns').style.display = 'none';
+    });
+  });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Ajouter une position</title>
+    <style>
+        #map {
+            width: 100%;
+            height: 500px;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Ajouter une position sur la carte</h2>
+
+<form action="{{ path('save_location') }}" method="POST">
+    <input type="hidden" name="latitude" id="latitude">
+    <input type="hidden" name="longitude" id="longitude">
+    <input type="hidden" name="point_id" id="point_id" value="{{ point.id }}">
+
+
+    <p>
+        <button type="submit">Enregistrer la position</button>
+    </p>
+ {# <select class="form-select form-select-lg" name="point_id" required>
+            <option value="" selected disabled>Choisissez un point</option>
+            {% for point in points %}
+                <option value="{{ point.id }}">{{ point.nomPoint }}</option>
+            {% else %}
+                <option disabled>Aucuns point disponible</option>
+            {% endfor %}
+        </select> #}
+</form>
+<div id="map"></div>
+
+<script>
+    let map;
+    let marker;
+
+    function initMap() {
+        const defaultPosition = { lat: 14.6928, lng: -17.4467 }; // Dakar
+
+        map = new google.maps.Map(document.getElementById("map"), {
+            center: defaultPosition,
+            zoom: 12
+        });
+
+        map.addListener("click", function (event) {
+            const clickedLocation = event.latLng;
+
+            if (marker) {
+                marker.setMap(null);
+            }
+
+            marker = new google.maps.Marker({
+                position: clickedLocation,
+                map: map
+            });
+
+            document.getElementById("latitude").value = clickedLocation.lat();
+            document.getElementById("longitude").value = clickedLocation.lng();
+        });
+    }
+</script>
+
+<script async defer
+    src="https://maps.googleapis.com/maps/api/js?key={{ apiKey }}&callback=initMap">
+</script>
+
+</body>
+</html>

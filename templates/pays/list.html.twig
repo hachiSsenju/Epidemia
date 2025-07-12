@@ -1,0 +1,121 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello PaysController!{% endblock %}
+
+{% block body %}
+<style>
+    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
+    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
+    
+    /* Input field styling */
+    .view-mode .form-control {
+        border: 1px solid transparent;
+        background: transparent;
+        padding: 0;
+        pointer-events: none;
+    }
+    
+    /* Button visibility control */
+    .save-btn, .cancel-btn, .confirm-link { display: none; }
+    .edit-mode .save-btn,
+    .edit-mode .cancel-btn { display: inline-block; }
+    .edit-mode .edit-btn,
+    .edit-mode .delete-btn { display: none; }
+    
+    .delete-mode .confirm-link,
+    .delete-mode .cancel-btn { display: inline-block; }
+    .delete-mode .delete-btn,
+    .delete-mode .edit-btn { display: none; }
+</style>
+
+<table class="table table-bordered">
+  <thead>
+    <tr>
+      <th scope="col">Nom pays</th>
+      <th scope="col">Action</th>
+    </tr>
+  </thead>
+  <tbody>
+   {% for pays in payslist %}
+    <tr class="view-mode">
+      <form method='POST' action="{{ path('app_pays_update', {'id': pays.id}) }}">
+        <td>
+          <input type="text" class="form-control" value="{{ pays.nomPays }}" name="nom" readonly>
+        </td>
+        <td>
+          <button class='btn btn-info text-white edit-btn' type='button'>Modifier</button>
+          <button class='btn btn-success text-white save-btn' type='submit'>Enregistrer</button>
+          
+          <button class='btn btn-danger text-white delete-btn' type='button'>Supprimer</button>
+          <button class='btn btn-warning text-white cancel-btn' type='button'>Annuler</button>
+          
+          <a href="{{ path('app_pays_delete', {'id': pays.id}) }}" 
+             class="btn btn-danger text-white confirm-link"
+             >
+            Confirmer
+          </a>
+        </td>
+      </form>
+      
+    </tr>
+   {% endfor %}
+  </tbody>
+</table>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Edit mode - shows Enregistrer/Annuler
+    document.querySelectorAll('.edit-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const row = this.closest('tr');
+            row.classList.remove('view-mode');
+            row.classList.add('edit-mode');
+            row.classList.remove('delete-mode');
+            
+            // Make inputs editable
+            row.querySelectorAll('input').forEach(input => {
+                input.readOnly = false;
+            });
+        });
+    });
+    
+    // Delete mode - shows Confirmer/Annuler
+    document.querySelectorAll('.delete-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const row = this.closest('tr');
+            row.classList.add('delete-mode');
+            row.classList.remove('edit-mode');
+        });
+    });
+    
+    // Cancel button - resets both modes
+    document.querySelectorAll('.cancel-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const row = this.closest('tr');
+            row.classList.add('view-mode');
+            row.classList.remove('edit-mode', 'delete-mode');
+            window.location.reload();
+            const form = row.closest('form');
+            form.reset();
+            row.querySelectorAll('input').forEach(input => {
+                input.readOnly = true;
+            });
+        });
+    });
+    
+    // Save button - form will submit normally
+    document.querySelectorAll('.save-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const row = this.closest('tr');
+            row.classList.add('view-mode');
+            row.classList.remove('edit-mode');
+            
+            // Make inputs read-only again
+            row.querySelectorAll('input').forEach(input => {
+                input.readOnly = true;
+            });
+        });
+    });
+});
+</script>
+{% endblock %}
