@@ -22,7 +22,8 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Install dependencies (adjust for prod or dev as needed)
 RUN composer install --no-dev --optimize-autoloader
-
+# Install Symfony Flex
+RUN composer global require symfony/flex
 # Set correct permissions
 RUN chown -R www-data:www-data /var/www/html/var /var/www/html/vendor
 
